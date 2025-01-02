@@ -1,7 +1,7 @@
 package net.createcobblestone.data;
 
 import net.createcobblestone.index.Config;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -93,7 +93,7 @@ public class GeneratorType {
 
     public Block getBlock() throws NullPointerException
     {
-        return BuiltInRegistries.BLOCK.get(block);
+        return Registry.BLOCK.get(block);
     }
 
     public Item getItem() throws NullPointerException

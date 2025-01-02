@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -34,7 +35,7 @@ public class MechanicalGeneratorBlockItem extends BlockItem {
 
                 if (generatedItem != Items.AIR) {
                     tooltipComponents.add(
-                            Component.translatable(
+                            new TranslatableComponent(
                                     "block.createcobblestone.generators.hovertext.itemprefix"
                             ).append(
                                     generatedItem.getName(generatedItem.getDefaultInstance())
@@ -42,7 +43,7 @@ public class MechanicalGeneratorBlockItem extends BlockItem {
                     );
                 } else {
                     tooltipComponents.add(
-                            Component.translatable(
+                            new TranslatableComponent(
                                     "block.createcobblestone.generators.hovertext.no_item"
                             ).setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY))
                     );

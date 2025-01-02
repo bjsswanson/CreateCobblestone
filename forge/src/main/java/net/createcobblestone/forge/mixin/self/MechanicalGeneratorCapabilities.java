@@ -8,9 +8,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public abstract class MechanicalGeneratorCapabilities extends KineticBlockEntity
 
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction facing) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER && !remove) {
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && !remove) {
             // If down return the down handler otherwise return the one for all other sides
             return createcobblestoneinv$handler.cast();
         }

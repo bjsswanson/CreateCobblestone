@@ -6,7 +6,7 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
 import net.createcobblestone.index.Network;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,10 +15,13 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.block.Blocks;
 import oshi.util.tuples.Quintet;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static net.createcobblestone.CreateCobblestoneMod.LOGGER;
 
@@ -27,71 +30,80 @@ public class GeneratorTypeLoader {
     public static boolean loaded = false;
     public static List<Quintet<String, String, Integer, Float, Integer>> loadedTypes = new ArrayList<>();
 
+    public static Resource getResource(ResourceManager resourceManager, ResourceLocation location) {
+        try {
+            return resourceManager.getResource(location);
+        } catch (IOException ignored) {}
+        return null;
+    }
+
     public static void loadGeneratorTypes(ResourceManager resourceManager) {
         loaded = false;
         GeneratorType.init();
 
         loadedTypes.clear();
 
-        Map<ResourceLocation, Resource> resources = resourceManager.listResources("generator_types", location -> location.getPath().endsWith(".json"));
+        Collection<ResourceLocation> generatorTypes = resourceManager.listResources("generator_types", location -> location.endsWith(".json"));
+        Map<ResourceLocation, Resource> resources = generatorTypes.stream().collect(Collectors.toMap((key) ->  key, (key) -> getResource(resourceManager, key)));
 
         for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
             ResourceLocation id = entry.getKey();
             Resource resource = entry.getValue();
+            if(resource != null) {
+                try (InputStream inputStream = resource.getInputStream()) {
 
-            try (InputStream inputStream = resource.open()) {
+                    JsonObject generatorJsonData = JsonParser.parseString(new String(inputStream.readAllBytes())).getAsJsonObject();
 
-                JsonObject generatorJsonData = JsonParser.parseString(new String(inputStream.readAllBytes())).getAsJsonObject();
+                    String block = generatorJsonData.get("block").getAsString();
 
-                String block = generatorJsonData.get("block").getAsString();
+                    if (Registry.BLOCK.get(new ResourceLocation(block)) == Blocks.AIR) {
+                        LOGGER.error("Generator type {} has no block assigned", id);
+                    }
 
-                if (BuiltInRegistries.BLOCK.get(new ResourceLocation(block)) == Blocks.AIR){
-                    LOGGER.error("Generator type {} has no block assigned", id);
-                }
+                    int generatorStress = -1;
+                    float outputPerSecondPerRpm = -1;
+                    int generatorStorage = -1;
 
-                int generatorStress = -1;
-                float outputPerSecondPerRpm = -1;
-                int generatorStorage = -1;
+                    if (generatorJsonData.has("enabled") && !generatorJsonData.get("enabled").getAsBoolean()) {
+                        // Enabled at default, but disabled when actively disabled. Completely removes the generator type, also from creative tab.
+                        continue;
+                    }
 
-                if (generatorJsonData.has("enabled") && !generatorJsonData.get("enabled").getAsBoolean()) {
-                    // Enabled at default, but disabled when actively disabled. Completely removes the generator type, also from creative tab.
-                    continue;
-                }
-
-                if (generatorJsonData.has("stress")) {
-                    generatorStress = generatorJsonData.get("stress").getAsInt();
-                }
-
-                if (generatorJsonData.has("outputPerSecondPerRpm")) {
-                    outputPerSecondPerRpm = generatorJsonData.get("outputPerSecondPerRpm").getAsFloat();
-                }
-
-                if (generatorJsonData.has("storage")) {
-                    generatorStorage = generatorJsonData.get("storage").getAsInt();
-                }
-
-                loadedTypes.add(new Quintet<>(id.toString(), block, generatorStress, outputPerSecondPerRpm, generatorStorage));
-
-                GeneratorType.initializeNewType(id.toString(), new ResourceLocation(block), generatorStress, outputPerSecondPerRpm, generatorStorage);
-                // Deprecated
-                if (generatorJsonData.has("ratio")) {
+                    if (generatorJsonData.has("stress")) {
+                        generatorStress = generatorJsonData.get("stress").getAsInt();
+                    }
 
                     if (generatorJsonData.has("outputPerSecondPerRpm")) {
-                        LOGGER.error("Generator type {} has both ratio and outputPerSecondPerRpm, outputPerSecondPerRpm will be used", id);
-                    } else {
-                        // Convert ratio to outputPerSecondPerRpm
-                        LOGGER.warn("Generator type {} has deprecated ratio, please use outputPerSecondPerRpm instead. (Converted to {} outputPerSecondPerRpm)", id, 1/(generatorJsonData.get("ratio").getAsFloat())*20);
-
-                        outputPerSecondPerRpm = 1/(generatorJsonData.get("ratio").getAsFloat())*20;
+                        outputPerSecondPerRpm = generatorJsonData.get("outputPerSecondPerRpm").getAsFloat();
                     }
+
+                    if (generatorJsonData.has("storage")) {
+                        generatorStorage = generatorJsonData.get("storage").getAsInt();
+                    }
+
+                    loadedTypes.add(new Quintet<>(id.toString(), block, generatorStress, outputPerSecondPerRpm, generatorStorage));
+
+                    GeneratorType.initializeNewType(id.toString(), new ResourceLocation(block), generatorStress, outputPerSecondPerRpm, generatorStorage);
+                    // Deprecated
+                    if (generatorJsonData.has("ratio")) {
+
+                        if (generatorJsonData.has("outputPerSecondPerRpm")) {
+                            LOGGER.error("Generator type {} has both ratio and outputPerSecondPerRpm, outputPerSecondPerRpm will be used", id);
+                        } else {
+                            // Convert ratio to outputPerSecondPerRpm
+                            LOGGER.warn("Generator type {} has deprecated ratio, please use outputPerSecondPerRpm instead. (Converted to {} outputPerSecondPerRpm)", id, 1 / (generatorJsonData.get("ratio").getAsFloat()) * 20);
+
+                            outputPerSecondPerRpm = 1 / (generatorJsonData.get("ratio").getAsFloat()) * 20;
+                        }
+                    }
+
+                    loadedTypes.add(new Quintet<>(id.toString(), block, generatorStress, outputPerSecondPerRpm, generatorStorage));
+
+                    GeneratorType.initializeNewType(id.toString(), new ResourceLocation(block), generatorStress, outputPerSecondPerRpm, generatorStorage);
+
+                } catch (Exception e) {
+                    LOGGER.error("Error loading generator type: " + id, e);
                 }
-
-                loadedTypes.add(new Quintet<>(id.toString(), block, generatorStress, outputPerSecondPerRpm, generatorStorage));
-
-                GeneratorType.initializeNewType(id.toString(), new ResourceLocation(block), generatorStress, outputPerSecondPerRpm, generatorStorage);
-
-            } catch (Exception e) {
-                LOGGER.error("Error loading generator type: " + id, e);
             }
         }
 

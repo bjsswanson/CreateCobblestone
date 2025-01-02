@@ -1,8 +1,8 @@
 package net.createcobblestone.index.fabric;
 
 import com.simibubi.create.foundation.config.ConfigBase;
-import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
-import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
+import net.minecraftforge.api.ModLoadingContext;
+import net.minecraftforge.api.fml.event.config.ModConfigEvent;
 import net.createcobblestone.CreateCobblestoneMod;
 import net.createcobblestone.config.CreateCobblestoneCommon;
 import net.createcobblestone.index.Config;
@@ -31,9 +31,9 @@ public class ConfigImpl extends Config {
         common = register(CreateCobblestoneCommon::new, ModConfig.Type.COMMON);
 
         for (Map.Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())
-            ForgeConfigRegistry.INSTANCE.register(CreateCobblestoneMod.MOD_ID, pair.getKey(), pair.getValue().specification);
+            ModLoadingContext.registerConfig(CreateCobblestoneMod.MOD_ID, pair.getKey(), pair.getValue().specification);
 
-        ModConfigEvents.loading(CreateCobblestoneMod.MOD_ID).register(net.createcobblestone.index.Config::onLoad);
-        ModConfigEvents.reloading(CreateCobblestoneMod.MOD_ID).register(net.createcobblestone.index.Config::onReload);
+        ModConfigEvent.LOADING.register(net.createcobblestone.index.Config::onLoad);
+        ModConfigEvent.RELOADING.register(net.createcobblestone.index.Config::onReload);
     }
 }

@@ -4,10 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -80,7 +80,7 @@ public class MechanicalGeneratorRenderer extends KineticBlockEntityRenderer<Mech
             ms.pushPose();
             ms.translate(translations[i].x, translations[i].y, translations[i].z); // Adjust position
             ms.scale(0.5f, 0.5f, 0.5f);
-            Minecraft.getInstance().getItemRenderer().renderStatic(renderedItem, ItemDisplayContext.FIXED, light, overlay, ms, buffer, be.getLevel(), 0);
+            Minecraft.getInstance().getItemRenderer().renderStatic(renderedItem, ItemTransforms.TransformType.FIXED, light, overlay, ms, buffer, 0);
             ms.popPose();
         }
     }

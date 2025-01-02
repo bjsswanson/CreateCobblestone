@@ -10,7 +10,8 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import net.createcobblestone.CreateCobblestoneMod;
 import net.createcobblestone.blocks.MechanicalGeneratorBlock;
 import net.createcobblestone.blocks.MechanicalGeneratorBlockItem;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.material.MaterialColor;
 
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static net.createcobblestone.CreateCobblestoneMod.REGISTRATE;
@@ -40,11 +41,11 @@ public class Blocks {
         }
 
         MECHANICAL_GENERATOR_BLOCK = REGISTRATE.block("mechanical_generator", MechanicalGeneratorBlock::new)
-                .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
+                .properties(p -> p.color(MaterialColor.COLOR_BROWN))
                 .transform(BlockStressDefaults.setImpact(generator_stress))
                 .tag(AllTags.AllBlockTags.SAFE_NBT.tag)
                 .item(MechanicalGeneratorBlockItem::new)
-                .properties(p -> p.arch$tab(CreativeTabs.getBaseTabKey()))
+                .properties(p -> p.tab(CreativeModeTab.TAB_DECORATIONS))
                 .transform(customItemModel())
                 .register();
     }
