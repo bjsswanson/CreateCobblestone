@@ -26,6 +26,7 @@ public class CreateCobblestoneCommon extends ConfigBase {
     public final ConfigBool stoneGeneratorEnabled = b(true, "stoneGeneratorEnabled", Comments.generatorEnabled);
     public final ConfigBool limestoneGeneratorEnabled = b(true, "limestoneGeneratorEnabled", Comments.generatorEnabled);
     public final ConfigBool scoriaGeneratorEnabled = b(true, "scoriaGeneratorEnabled", Comments.generatorEnabled);
+    public final ConfigBool andesiteGeneratorEnabled = b(true, "andesiteGeneratorEnabled", Comments.generatorEnabled);
 
     public final ConfigBool deepslateGeneratorEnabled = b(true, "deepslateGeneratorEnabled", Comments.deepslateGeneratorsEnabled);
     public final ConfigBool cobbledDeepslateGeneratorEnabled = b(true, "cobbledDeepslateGeneratorEnabled", Comments.deepslateGeneratorsEnabled);
@@ -72,6 +73,9 @@ public class CreateCobblestoneCommon extends ConfigBase {
 
         } else if (Objects.equals(type.getId(), "createcobblestone:generator_types/scoria.json")) {
             return Config.common().scoriaGeneratorEnabled.get();
+
+        } else if (Objects.equals(type.getId(), "createcobblestone:generator_types/andesite.json")) {
+            return Config.common().andesiteGeneratorEnabled.get();
 
         } else if (Objects.equals(type.getId(), "createcobblestone:generator_types/deepslate.json")) {
             return Config.common().deepslateGeneratorEnabled.get();
