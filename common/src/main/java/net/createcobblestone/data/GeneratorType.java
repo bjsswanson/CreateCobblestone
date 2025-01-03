@@ -126,14 +126,14 @@ public class GeneratorType {
                 case "scoria":
                     id = "createcobblestone:generator_types/scoria.json";
                     break;
+                case "andesite":
+                    id = "createcobblestone:generator_types/andesite.json";
+                    break;
                 case "deepslate":
                     id = "createcobblestone:generator_types/deepslate.json";
                     break;
                 case "cobbled_deepslate":
                     id = "createcobblestone:generator_types/cobbled_deepslate.json";
-                    break;
-                case "andesite":
-                    id = "createcobblestone:generator_types/andesite.json";
                     break;
             }
 
