@@ -2,7 +2,9 @@
 
 *Removed custom creative mode tab for ease of backporting, shouldnt affect functionality and can still search for it*
 
-*Also downgraded recipe to use Andesite casing and alloy to make is usable early game*
+*Added Andesite generator type as Create makes extensive use of Andesite*
+
+*Downgraded recipe to use Andesite casing and alloy to make is usable early game*
 
 ## Create cobblestone
 
